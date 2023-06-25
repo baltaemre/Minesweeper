@@ -1,0 +1,124 @@
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Scanner;
+public class Minesweeper {
+    private String[][] realArray;
+    private String[][] temporaryArray;
+    private int row;
+    private int column;
+    private int numberOfMines;
+
+    Minesweeper(int row,int column){
+        this.row = row;
+        this.column = column;
+        this.realArray = new String[row][column];
+        this.temporaryArray = new String[row][column];
+        this.numberOfMines = (int) (row*column/4);
+    }
+    public void setRealArray(){
+        int count =0, row, column;
+        Random R = new Random();
+        createArray(this.realArray);
+
+        while (count<this.numberOfMines){
+            row = R.nextInt(this.row);
+            column = R.nextInt(this.column);
+            if (!this.realArray[row][column].equals("*")){
+                this.realArray[row][column] = "*";
+                count++;
+            }
+        }
+        System.out.println("Mayınların Konumu");
+        printArray(this.realArray);
+        System.out.println("==================================");
+    }
+    public void createArray(String[][] str){
+
+        for (String[] row : str) {
+            Arrays.fill(row, "-");
+        }
+    }
+    public void printArray(String[][] matrix){
+        for (int i = 0; i < this.row; i++) {
+            for (int j = 0; j < this.column; j++) {
+                System.out.print(matrix[i][j]+" ");
+            }
+            System.out.println();
+        }
+    }
+    public boolean checkPoint(int row, int column){
+        if (row >= this.row || column >= this.column){
+            System.out.println("Hatalı giriş yaptınız! Yeniden giriniz");
+            printArray(this.temporaryArray);
+            System.out.println("==================================");
+            return false;
+        }else if (!this.temporaryArray[row][column].equals("-")){
+            System.out.println("Daha önce açtığınız bir hücrenin değerini girdiniz! Yeniden giriniz");
+            printArray(this.temporaryArray);
+            System.out.println("==================================");
+            return false;
+        }
+        return true;
+    }
+    public boolean checkGame(int row, int column){
+        if (this.realArray[row][column].equals("*"))
+            return false;
+
+        return true;
+
+    }
+
+    public String addNumber(int row,int column){
+        int number=0;
+        for (int i=row-1;i<=row+1;i++){
+            for (int j=column-1;j<=column+1;j++){
+                if (i<0 || i>=this.row || j<0 || j>=this.column)
+                    continue;
+                else if (this.realArray[i][j].equals("*"))
+                    number++;
+            }
+        }
+        return String.valueOf(number);
+    }
+    public void startGame(){
+        Scanner input = new Scanner(System.in);
+        boolean isFinish = true;
+        int row, column, count=0;
+        System.out.println("Mayın Tarlası Oyuna Hoşgeldiniz !");
+        createArray(this.temporaryArray);
+        printArray(this.temporaryArray);
+
+        while (isFinish){
+            System.out.print("Satır Giriniz : ");
+            row = input.nextInt();
+            System.out.print("Sütun Giriniz : ");
+            column = input.nextInt();
+            System.out.println("==================================");
+
+            if (!checkPoint(row,column))
+                continue;
+
+            isFinish = checkGame(row,column);
+
+            if (isFinish){
+                count++;
+                this.temporaryArray[row][column] = addNumber(row,column);
+                printArray(this.temporaryArray);
+            }else {
+                this.temporaryArray[row][column] = "*";
+                printArray(this.temporaryArray);
+                System.out.println("========== Game Over! ==========");
+            }
+            if (count == (this.row*this.column-this.numberOfMines)){
+                System.out.println("Oyunu Kazandınız !");
+                printArray(this.temporaryArray);
+                System.out.println("==================================");
+                break;
+            }
+        }
+    }
+    public void run(){
+        setRealArray();
+        startGame();
+    }
+}
